@@ -1,5 +1,6 @@
 import nats from "node-nats-streaming";
 import { randomBytes } from "crypto";
+import { TicketCreatedPublisher } from "./events/ticket-created-publisher";
 
 console.clear();
 
@@ -10,16 +11,11 @@ const client = nats.connect("ticketing", randomBytes(4).toString("hex"), {
 client.on("connect", () => {
   console.log("Publisher connected to NATS");
 
-  //   we can only share stings as data in nats so this will not work
-  const data = {
+  const publisher = new TicketCreatedPublisher(client);
+
+  publisher.publish({
     id: "123",
     title: "concert",
     price: 20,
-  };
-
-  const stringData = JSON.stringify(data);
-
-  client.publish("ticket:created", stringData, () => {
-    console.log("Create ticket event published");
   });
 });
